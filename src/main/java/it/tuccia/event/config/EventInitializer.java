@@ -34,6 +34,10 @@ public class EventInitializer implements ImportBeanDefinitionRegistrar {
         AnnotationAttributes attributes = AnnotationAttributes.fromMap(metadata.getAnnotationAttributes(EnableEventEngine.class.getName()));
         Assert.notNull(attributes, "You must insert @EnableEventEngine");
         Assert.notNull(attributes.get("basePackageScan"), "BasePackageScan must not be null");
+
+        if (attributes.get("basePackageScan").equals(""))
+            throw new IllegalArgumentException("BasePackageScan must not be empty");
+
         this.beanFactory = (AutowireCapableBeanFactory) registry;
         String basePackageScan = (String) attributes.get("basePackageScan");
         map = register(basePackageScan);
