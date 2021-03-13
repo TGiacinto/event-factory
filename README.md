@@ -33,7 +33,7 @@ If you want to set a custom event name, you can use the @MyEvent annotation
 ```java
 
 @MyEvent(value = "MyCustomEventName")
-public class ClaudioEvento implements Event {
+public class MyCustomEvent implements Event {
 
     @Override
     public void execute(String payloadBase64, MessageHeaders messageHeaders) {
