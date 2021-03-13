@@ -1,6 +1,7 @@
 package it.tuccia.event.config;
 
 import it.tuccia.event.annotation.EnableEventEngine;
+import it.tuccia.event.annotation.MyEvent;
 import it.tuccia.event.engine.Event;
 import lombok.Getter;
 import lombok.extern.apachecommons.CommonsLog;
@@ -52,8 +53,10 @@ public class EventInitializer implements ImportBeanDefinitionRegistrar {
             try {
                 if (!clazz.isInterface() && Event.class.isAssignableFrom(clazz)) {
                     Object instance = clazz.newInstance();
+
+                    MyEvent myEventAnnotation = instance.getClass().getAnnotation(MyEvent.class);
+                    put(map, myEventAnnotation, (Event) instance);
                     beanFactory.autowireBean(instance);
-                    put(map, (Event) instance);
                 }
             } catch (InstantiationException | IllegalAccessException e) {
                 e.printStackTrace();
@@ -65,8 +68,13 @@ public class EventInitializer implements ImportBeanDefinitionRegistrar {
         return map;
     }
 
-    private void put(Map<String, Event> map, Event eventClazz) {
-        map.put(convertToCamelCaseWithUnderscore(eventClazz.getClass().getSimpleName()), eventClazz);
+
+    private void put(Map<String, Event> map, MyEvent myEventAnnotation, Event eventClazz) {
+        String key = convertToCamelCaseWithUnderscore(eventClazz.getClass().getSimpleName());
+        if (myEventAnnotation != null && !myEventAnnotation.value().equals(""))
+            key = myEventAnnotation.value();
+
+        map.put(key, eventClazz);
     }
 
     private String convertToCamelCaseWithUnderscore(String s) {
@@ -77,6 +85,8 @@ public class EventInitializer implements ImportBeanDefinitionRegistrar {
 
 
     private List<Class<?>> getClassesInPackage(String packageName) {
+
+
         String path = packageName.replace(".", File.separator);
         List<Class<?>> classes = new ArrayList<>();
         String[] classPathEntries = System.getProperty("java.class.path").split(System.getProperty("path.separator"));

@@ -18,14 +18,14 @@ public class EventEngine {
 
     @Autowired
     @Qualifier(value = "eventsMap")
-    Map<String,Event> mapEvents;
+    Map<String,Event> eventsMap;
 
     public void execute(String payload, MessageHeaders messageHeaders) throws EventEngineException {
 
         try {
             String eventName = (String)messageHeaders.get(EVENT_NAME);
             Assert.notNull(eventName,"Event name must not be null");
-            Event event = mapEvents.get(eventName);
+            Event event = eventsMap.get(eventName);
             if(event != null){
                 log.info("Event ".concat(eventName).concat(" found."));
                 event.execute(payload,messageHeaders);
